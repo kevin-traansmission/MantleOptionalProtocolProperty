@@ -9,6 +9,8 @@
 #import "MasterViewController.h"
 #import "DetailViewController.h"
 
+#import "Model.h"
+
 @interface MasterViewController ()
 
 @property NSMutableArray *objects;
@@ -37,6 +39,27 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSURL *jsonURL = [[NSBundle mainBundle] URLForResource:@"model" withExtension:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
+    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    @try {
+        Model *model = [MTLJSONAdapter modelOfClass:[Model class] fromJSONDictionary:jsonDict error:nil];
+    }
+    @catch (NSException *e) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:[e name]
+                                                                       message:[e reason]
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:nil];
+        [alert addAction:ok];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 - (void)insertNewObject:(id)sender {
